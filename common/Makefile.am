@@ -70,8 +70,9 @@ common_libswsscommon_la_SOURCES = \
     common/profileprovider.cpp       \
     common/zmqclient.cpp             \
     common/zmqserver.cpp             \
-    common/asyncdbupdater.cpp   \
-    common/redis_table_waiter.cpp
+    common/asyncdbupdater.cpp        \
+    common/redis_table_waiter.cpp    \
+    common/performancetimer.cpp
 
 common_libswsscommon_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CFLAGS) $(CODE_COVERAGE_CXXFLAGS)
 common_libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
