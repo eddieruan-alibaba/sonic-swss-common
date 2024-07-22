@@ -74,12 +74,12 @@ static inline void validateFields(const string& key, const vector<FieldValueTupl
     }
 }
 
-static void producerWorker(int index)
+static void producerWorker(int index, bool flushPub)
 {
     string tableName = "UT_REDIS_THREAD_" + to_string(index);
     DBConnector db(TEST_DB, 0, true);
     RedisPipeline pipeline(&db);
-    ProducerStateTable p(&pipeline, tableName, true);
+    ProducerStateTable p(&pipeline, tableName, true, flushPub);
 
     for (int i = 0; i < NUMBER_OF_OPS; i++)
     {
@@ -112,24 +112,27 @@ static void consumerWorker(int index)
     int numberOfKeysSet = 0;
     int numberOfKeyDeleted = 0;
     int ret, i = 0;
-    KeyOpFieldsValuesTuple kco;
+    std::deque<KeyOpFieldsValuesTuple> entries;
 
     cs.addSelectable(&c);
     while ((ret = cs.select(&selectcs)) == Select::OBJECT)
     {
-        c.pop(kco);
-        if (kfvOp(kco) == "SET")
+        c.pops(entries);
+
+        for (auto& kco: entries)
         {
-            numberOfKeysSet++;
-            validateFields(kfvKey(kco), kfvFieldsValues(kco));
-        } else if (kfvOp(kco) == "DEL")
-        {
-            numberOfKeyDeleted++;
+            if (kfvOp(kco) == "SET")
+            {
+                numberOfKeysSet++;
+                validateFields(kfvKey(kco), kfvFieldsValues(kco));
+            } else if (kfvOp(kco) == "DEL")
+            {
+                numberOfKeyDeleted++;
+            }
+
+            if ((i++ % 100) == 0)
+                cout << "-" << flush;
         }
-
-        if ((i++ % 100) == 0)
-            cout << "-" << flush;
-
         if (numberOfKeyDeleted == NUMBER_OF_OPS)
             break;
     }
@@ -654,7 +657,10 @@ TEST(ConsumerStateTable, async_test)
     for (int i = 0; i < NUMBER_OF_THREADS; i++)
     {
         consumerThreads[i] = new thread(consumerWorker, i);
-        producerThreads[i] = new thread(producerWorker, i);
+        if (i < NUMBER_OF_THREADS/2)
+            producerThreads[i] = new thread(producerWorker, i, false);
+        else
+            producerThreads[i] = new thread(producerWorker, i, true);
     }
 
     cout << "Done. Waiting for all job to finish " << NUMBER_OF_OPS << " jobs." << endl;
@@ -689,7 +695,10 @@ TEST(ConsumerStateTable, async_multitable)
     {
         consumers[i] = new ConsumerStateTable(&db, string("UT_REDIS_THREAD_") +
                                          to_string(i));
-        producerThreads[i] = new thread(producerWorker, i);
+        if (i < NUMBER_OF_THREADS/2)
+            producerThreads[i] = new thread(producerWorker, i, false);
+        else
+            producerThreads[i] = new thread(producerWorker, i, true);
     }
 
     for (i = 0; i < NUMBER_OF_THREADS; i++)
