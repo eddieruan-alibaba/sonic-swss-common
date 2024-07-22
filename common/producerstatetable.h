@@ -11,7 +11,7 @@ class ProducerStateTable : public TableBase, public TableName_KeySet
 {
 public:
     ProducerStateTable(DBConnector *db, const std::string &tableName);
-    ProducerStateTable(RedisPipeline *pipeline, const std::string &tableName, bool buffered = false);
+    ProducerStateTable(RedisPipeline *pipeline, const std::string &tableName, bool buffered = false, bool flushPub = false);
     virtual ~ProducerStateTable();
 
     void setBuffered(bool buffered);
@@ -51,6 +51,7 @@ public:
 
     void apply_temp_view();
 private:
+    bool m_flushPub;
     bool m_buffered;
     bool m_pipeowned;
     bool m_tempViewActive;
@@ -62,6 +63,7 @@ private:
     std::string m_shaClear;
     std::string m_shaApplyView;
     TableDump m_tempViewState;
+    void resetRedisScript();
 };
 
 }
