@@ -1,14 +1,16 @@
 #pragma once
 
 #include <string>
-#include <functional>
 #include <queue>
-#include <chrono>
-#include <iostream>
-#include "logger.h"
+#include <functional>
 #include "redisreply.h"
 #include "rediscommand.h"
 #include "dbconnector.h"
+#include "logger.h"
+
+#include "unistd.h"
+#include "sys/syscall.h"
+#define gettid() syscall(SYS_gettid)
 
 namespace swss {
 
@@ -20,47 +22,140 @@ public:
     RedisPipeline(const DBConnector *db, size_t sz = 128)
         : COMMAND_MAX(sz)
         , m_remaining(0)
-        , m_shaPub("")
     {
         m_db = db->newConnector(NEWCONNECTOR_TIMEOUT);
-        lastHeartBeat = std::chrono::steady_clock::now();
+        initializeOwnerTid();
     }
 
-    ~RedisPipeline();
-    
-    redisReply *push(const RedisCommand& command, int expectedType);
+    ~RedisPipeline() {
+        if (m_ownerTid == gettid())
+        {
+            // call flush from different thread will trigger race condition issue.
+            flush();
+        }
+        else
+        {
+            SWSS_LOG_NOTICE("RedisPipeline dtor is called from another thread, possibly due to exit(), Database: %s", getDbName().c_str());
+        }
 
-    redisReply *push(const RedisCommand& command);
+        delete m_db;
+    }
 
-    std::string loadRedisScript(const std::string& script);
+    redisReply *push(const RedisCommand& command, int expectedType)
+    {
+        switch (expectedType)
+        {
+            case REDIS_REPLY_NIL:
+            case REDIS_REPLY_STATUS:
+            case REDIS_REPLY_INTEGER:
+            {
+                int rc = command.appendTo(m_db->getContext());
+                if (rc != REDIS_OK)
+                {
+                    // The only reason of error is REDIS_ERR_OOM (Out of memory)
+                    // ref: https://github.com/redis/hiredis/blob/master/hiredis.c
+                    throw std::bad_alloc();
+                }
+                m_expectedTypes.push(expectedType);
+                m_remaining++;
+                mayflush();
+                return NULL;
+            }
+            default:
+            {
+                flush();
+                RedisReply r(m_db, command, expectedType);
+                return r.release();
+            }
+        }
+    }
 
-    void flush();
+    redisReply *push(const RedisCommand& command)
+    {
+        flush();
+        RedisReply r(m_db, command);
+        return r.release();
+    }
 
-    size_t size();
+    std::string loadRedisScript(const std::string& script)
+    {
+        RedisCommand loadcmd;
+        loadcmd.format("SCRIPT LOAD %s", script.c_str());
+        RedisReply r = push(loadcmd, REDIS_REPLY_STRING);
 
-    int getDbId();
+        std::string sha = r.getReply<std::string>();
+        return sha;
+    }
 
-    std::string getDbName();
+    // The caller is responsible to release the reply object
+    redisReply *pop()
+    {
+        if (m_remaining == 0) return NULL;
 
-    DBConnector *getDBConnector();
+        redisReply *reply;
+        int rc = redisGetReply(m_db->getContext(), (void**)&reply);
+        if (rc != REDIS_OK)
+        {
+            throw RedisError("Failed to redisGetReply in RedisPipeline::pop", m_db->getContext());
+        }
+        RedisReply r(reply);
+        m_remaining--;
 
-    void addChannel(std::string channel);
+        int expectedType = m_expectedTypes.front();
+        m_expectedTypes.pop();
+        r.checkReplyType(expectedType);
+        if (expectedType == REDIS_REPLY_STATUS)
+        {
+            r.checkStatusOK();
+        }
+        return r.release();
+    }
 
-    int getIdleTime(std::chrono::time_point<std::chrono::steady_clock> tcurrent=std::chrono::steady_clock::now());
+    void flush()
+    {
+        while(m_remaining)
+        {
+            // Construct an object to use its dtor, so that resource is released
+            RedisReply r(pop());
+        }
+    }
+
+    size_t size()
+    {
+        return m_remaining;
+    }
+
+    int getDbId()
+    {
+        return m_db->getDbId();
+    }
+
+    std::string getDbName()
+    {
+        return m_db->getDbName();
+    }
+
+    DBConnector *getDBConnector()
+    {
+        return m_db;
+    }
+
+    void initializeOwnerTid()
+    {
+        m_ownerTid = gettid();
+    }
 
 private:
     DBConnector *m_db;
     std::queue<int> m_expectedTypes;
     size_t m_remaining;
-    std::string m_luaPub;
-    std::string m_shaPub;
-    std::chrono::time_point<std::chrono::steady_clock> lastHeartBeat;
+    long int m_ownerTid;
 
-    // The caller is responsible to release the reply object
-    redisReply *pop();
-
-    void mayflush();
-    void publish();
+    void mayflush()
+    {
+        if (m_remaining >= COMMAND_MAX)
+            flush();
+    }
 };
 
 }
