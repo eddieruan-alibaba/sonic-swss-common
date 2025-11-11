@@ -1,22 +1,40 @@
-# --- Jinja2-generated files: header and implementation ---
+# --- Jinja2-generated files: header, implementation, and JSON bindings ---
 
-BUILT_SOURCES = nexthopgroupfull.h nexthopgroupfull.cpp
+BUILT_SOURCES = nexthopgroupfull.h nexthopgroupfull.cpp nexthopgroupfull_json.hpp
 
+# Common dependencies
+schema_file = $(top_srcdir)/common/schema/NextHopGroupFull.json
+render_script = $(top_srcdir)/render_schema.py
+
+# Header
 nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
-                    $(top_srcdir)/common/schema/NextHopGroupFull.json \
-                    $(top_srcdir)/render_schema.py
-	$(AM_V_GEN)$(PYTHON) $(top_srcdir)/render_schema.py \
-		$(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
-		$(top_srcdir)/common/schema/NextHopGroupFull.json \
-		$@
+                    $(schema_file) \
+                    $(render_script)
+	$(AM_V_GEN)$(PYTHON) $(render_script) \
+		$(schema_file) \
+		$(top_srcdir)/common/templates \
+		$@ \
+		header
 
+# Implementation
 nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
-                      $(top_srcdir)/common/schema/NextHopGroupFull.json \
-                      $(top_srcdir)/render_schema.py
-	$(AM_V_GEN)$(PYTHON) $(top_srcdir)/render_schema.py \
-		$(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
-		$(top_srcdir)/common/schema/NextHopGroupFull.json \
-		$@
+                      $(schema_file) \
+                      $(render_script)
+	$(AM_V_GEN)$(PYTHON) $(render_script) \
+		$(schema_file) \
+		$(top_srcdir)/common/templates \
+		$@ \
+		source
+
+# JSON bindings header
+nexthopgroupfull_json.hpp: $(top_srcdir)/common/templates/nexthopgroupfull_json.h.j2 \
+                           $(schema_file) \
+                           $(render_script)
+	$(AM_V_GEN)$(PYTHON) $(render_script) \
+		$(schema_file) \
+		$(top_srcdir)/common/templates \
+		$@ \
+		json_bindings
 
 CLEANFILES = nexthopgroupfull.h nexthopgroupfull.cpp
 
@@ -24,6 +42,7 @@ EXTRA_DIST = \
     templates/nexthopgroupfull.h.j2 \
     templates/nexthopgroupfull.cpp.j2 \
     schema/NextHopGroupFull.json
+
 lib_LTLIBRARIES += common/libswsscommon.la
 
 dist_swss_DATA = \

@@ -1,0 +1,239 @@
+// Auto-generated from JSON Schema. DO NOT EDIT.
+#pragma once
+
+#include "nexthopgroupfull.h"
+#include "json.hpp" // nlohmann/json
+
+#include <string>
+#include <optional>
+#include <arpa/inet.h> // for inet_ntop / inet_pton
+
+namespace swss {
+
+// --- IP Conversion Helpers ---
+inline std::string ipv4_to_string(const struct in_addr& addr) {
+    char buf[INET_ADDRSTRLEN];
+    return inet_ntop(AF_INET, &addr, buf, INET_ADDRSTRLEN) ? std::string(buf) : "0.0.0.0";
+}
+inline std::string ipv6_to_string(const struct in6_addr& addr) {
+    char buf[INET6_ADDRSTRLEN];
+    return inet_ntop(AF_INET6, &addr, buf, INET6_ADDRSTRLEN) ? std::string(buf) : "::";
+}
+inline bool string_to_ipv4(const std::string& ip, struct in_addr& out) {
+    return inet_pton(AF_INET, ip.c_str(), &out) == 1;
+}
+inline bool string_to_ipv6(const std::string& ip, struct in6_addr& out) {
+    return inet_pton(AF_INET6, ip.c_str(), &out) == 1;
+}
+inline std::string gaddr_to_string(const union g_addr& g, nexthop_types_t type) {
+    if (type == NEXTHOP_TYPE_IPV4 || type == NEXTHOP_TYPE_IPV4_IFINDEX) {
+        return ipv4_to_string(g.ipv4);
+    }
+    return ipv6_to_string(g.ipv6);
+}
+inline bool string_to_gaddr(const std::string& ip, union g_addr& g, nexthop_types_t type) {
+    if (type == NEXTHOP_TYPE_IPV4 || type == NEXTHOP_TYPE_IPV4_IFINDEX) {
+        return string_to_ipv4(ip, g.ipv4);
+    }
+    return string_to_ipv6(ip, g.ipv6);
+}
+
+// --- Enum to_json / from_json ---
+{%- for enum_name, values in enums.items() %}
+inline void to_json(nlohmann::json& j, const {{ enum_name }}& e) {
+    static const char* names[] = {
+        {%- for v in values %}
+        "{{ v }}",
+        {%- endfor %}
+    };
+    j = names[static_cast<int>(e)];
+}
+inline void from_json(const nlohmann::json& j, {{ enum_name }}& e) {
+    const std::string s = j;
+    {%- for idx, v in enumerate(values) %}
+    if (s == "{{ v }}") { e = static_cast<{{ enum_name }}>({{ idx }}); return; }
+    {%- endfor %}
+    e = static_cast<{{ enum_name }}>(0); // default to first
+}
+{%- endfor %}
+
+// --- nh_grp_full ---
+inline void to_json(nlohmann::json& j, const nh_grp_full& n) {
+    j = nlohmann::json{
+        {"id", n.id},
+        {"weight", n.weight},
+        {"num_direct", n.num_direct}
+    };
+}
+inline void from_json(const nlohmann::json& j, nh_grp_full& n) {
+    j.at("id").get_to(n.id);
+    j.at("weight").get_to(n.weight);
+    j.at("num_direct").get_to(n.num_direct);
+}
+
+// --- seg6local_flavors_info ---
+inline void to_json(nlohmann::json& j, const seg6local_flavors_info& f) {
+    j = nlohmann::json{
+        {"flv_ops", f.flv_ops},
+        {"lcblock_len", f.lcblock_len},
+        {"lcnode_func_len", f.lcnode_func_len}
+    };
+}
+inline void from_json(const nlohmann::json& j, seg6local_flavors_info& f) {
+    j.at("flv_ops").get_to(f.flv_ops);
+    j.at("lcblock_len").get_to(f.lcblock_len);
+    j.at("lcnode_func_len").get_to(f.lcnode_func_len);
+}
+
+// --- seg6local_context ---
+inline void to_json(nlohmann::json& j, const seg6local_context& ctx) {
+    j = nlohmann::json{
+        {"nh4", ipv4_to_string(ctx.nh4)},
+        {"nh6", ipv6_to_string(ctx.nh6)},
+        {"table", ctx.table},
+        {"flv", ctx.flv},
+        {"block_len", ctx.block_len},
+        {"node_len", ctx.node_len},
+        {"function_len", ctx.function_len},
+        {"argument_len", ctx.argument_len}
+    };
+}
+inline void from_json(const nlohmann::json& j, seg6local_context& ctx) {
+    std::string nh4_str = j.at("nh4");
+    std::string nh6_str = j.at("nh6");
+    string_to_ipv4(nh4_str, ctx.nh4);
+    string_to_ipv6(nh6_str, ctx.nh6);
+    j.at("table").get_to(ctx.table);
+    j.at("flv").get_to(ctx.flv);
+    j.at("block_len").get_to(ctx.block_len);
+    j.at("node_len").get_to(ctx.node_len);
+    j.at("function_len").get_to(ctx.function_len);
+    j.at("argument_len").get_to(ctx.argument_len);
+}
+
+// --- seg6_seg_stack (Note: only segs content is serialized) ---
+inline void to_json(nlohmann::json& j, const seg6_seg_stack* stack) {
+    if (!stack) {
+        j = nullptr;
+        return;
+    }
+    nlohmann::json segs = nlohmann::json::array();
+    for (int i = 0; i < stack->num_segs; ++i) {
+        segs.push_back(ipv6_to_string(stack->seg[i]));
+    }
+    j = nlohmann::json{
+        {"encap_behavior", stack->encap_behavior},
+        {"segs", segs}
+    };
+}
+inline void from_json(const nlohmann::json& j, seg6_seg_stack*& stack) {
+    if (j.is_null()) {
+        stack = nullptr;
+        return;
+    }
+    auto behavior = j.at("encap_behavior").get<srv6_headend_behavior>();
+    auto segs = j.at("segs").get<std::vector<std::string>>();
+    size_t total = sizeof(seg6_seg_stack) + segs.size() * sizeof(in6_addr);
+    stack = static_cast<seg6_seg_stack*>(malloc(total));
+    if (!stack) return;
+    stack->encap_behavior = behavior;
+    stack->num_segs = static_cast<uint8_t>(segs.size());
+    for (size_t i = 0; i < segs.size(); ++i) {
+        string_to_ipv6(segs[i], stack->seg[i]);
+    }
+}
+
+// --- nexthop_srv6 ---
+inline void to_json(nlohmann::json& j, const nexthop_srv6* srv6) {
+    if (!srv6) {
+        j = nullptr;
+        return;
+    }
+    j = nlohmann::json{
+        {"seg6local_action", srv6->seg6local_action},
+        {"seg6local_ctx", srv6->seg6local_ctx},
+        {"seg6_segs", srv6->seg6_segs}
+    };
+}
+inline void from_json(const nlohmann::json& j, nexthop_srv6*& srv6) {
+    if (j.is_null()) {
+        srv6 = nullptr;
+        return;
+    }
+    srv6 = new nexthop_srv6{};
+    j.at("seg6local_action").get_to(srv6->seg6local_action);
+    j.at("seg6local_ctx").get_to(srv6->seg6local_ctx);
+    j.at("seg6_segs").get_to(srv6->seg6_segs);
+}
+
+// --- NextHopGroupFull ---
+inline void to_json(nlohmann::json& j, const {{ root_struct_name }}& nh) {
+    j = nlohmann::json{
+        {"id", nh.id},
+        {"key", nh.key},
+        {"weight", nh.weight},
+        {"flags", nh.flags},
+        {"ifname", nh.ifname},
+        {"depends", nh.depends},
+        {"dependents", nh.dependents},
+        {"type", nh.type},
+        {"vrf_id", nh.vrf_id},
+        {"ifindex", nh.ifindex},
+        {"nh_label_type", nh.nh_label_type},
+        {"gateway", gaddr_to_string(nh.gate, nh.type)},
+        {"src", gaddr_to_string(nh.src, nh.type)},
+        {"rmap_src", gaddr_to_string(nh.rmap_src, nh.type)},
+        {"nh_srv6", nh.nh_srv6}
+    };
+    if (nh.type == NEXTHOP_TYPE_BLACKHOLE) {
+        j["bh_type"] = nh.bh_type;
+    }
+}
+inline void from_json(const nlohmann::json& j, {{ root_struct_name }}& nh) {
+    j.at("id").get_to(nh.id);
+    j.at("key").get_to(nh.key);
+    j.at("weight").get_to(nh.weight);
+    j.at("flags").get_to(nh.flags);
+    j.at("ifname").get_to(nh.ifname);
+    j.at("depends").get_to(nh.depends);
+    j.at("dependents").get_to(nh.dependents);
+    j.at("type").get_to(nh.type);
+    j.at("vrf_id").get_to(nh.vrf_id);
+    j.at("ifindex").get_to(nh.ifindex);
+    j.at("nh_label_type").get_to(nh.nh_label_type);
+
+    std::string gateway = j.at("gateway");
+    std::string src = j.at("src");
+    std::string rmap_src = j.at("rmap_src");
+    string_to_gaddr(gateway, nh.gate, nh.type);
+    string_to_gaddr(src, nh.src, nh.type);
+    string_to_gaddr(rmap_src, nh.rmap_src, nh.type);
+
+    nh.bh_type = BLACKHOLE_UNSPEC;
+    if (j.contains("bh_type") && nh.type == NEXTHOP_TYPE_BLACKHOLE) {
+        j.at("bh_type").get_to(nh.bh_type);
+    }
+
+    if (j.contains("nh_srv6")) {
+        j.at("nh_srv6").get_to(nh.nh_srv6);
+    } else {
+        nh.nh_srv6 = nullptr;
+    }
+}
+
+// --- Top-level string helpers ---
+inline std::string to_json_string(const {{ root_struct_name }}& obj) {
+    return nlohmann::json(obj).dump();
+}
+inline std::optional<{{ root_struct_name }}> from_json_string(const std::string& json_str) {
+    try {
+        auto j = nlohmann::json::parse(json_str);
+        {{ root_struct_name }} obj;
+        j.get_to(obj);
+        return obj;
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+} // namespace swss

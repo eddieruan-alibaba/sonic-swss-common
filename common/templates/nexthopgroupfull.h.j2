@@ -1,0 +1,95 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <cstdint>
+#include <netinet/in.h>
+
+namespace swss {
+
+    /* Auto-generated simple structs */
+    {%- for name, s in structs.items() if name not in special_structs %}
+    struct {{ name }} {
+        {%- for field in s.fields %}
+        {{ field.cpp_type }} {{ field.name }};
+        {%- endfor %}
+    };
+    {%- endfor %}
+
+    /* Enums */
+    {%- for enum_name, values in enums.items() %}
+    enum {{ enum_name }} {
+        {{ values | join(',\n        ') }}
+    };
+    {%- endfor %}
+
+    /* --- Special Struct: nexthop_srv6 --- */
+    struct nexthop_srv6 {
+        enum seg6local_action_t seg6local_action = {};
+        struct seg6local_context seg6local_ctx = {};
+        struct seg6_seg_stack *seg6_segs = nullptr;
+    };
+
+    /* --- Special Struct: NextHopGroupFull --- */
+    typedef std::uint32_t vrf_id_t;
+    typedef signed int ifindex_t;
+
+    union g_addr {
+        struct in_addr ipv4;
+        struct in6_addr ipv6;
+    };
+
+    struct NextHopGroupFull {
+        std::uint32_t id = 0;
+        std::uint32_t key = 0;
+        std::uint8_t weight = 0;
+        std::uint8_t flags = 0;
+    #define NEXTHOP_FLAG_ONLINK (1 << 3)
+
+        std::string ifname = "";
+        std::vector<struct nh_grp_full> depends;
+        std::vector<struct nh_grp_full> dependents;
+
+        char _hash_begin[0];
+
+        enum nexthop_types_t type = NEXTHOP_TYPE_INVALID;
+        vrf_id_t vrf_id = 0;
+        ifindex_t ifindex = 0;
+        enum lsp_types_t nh_label_type = ZEBRA_LSP_NONE;
+
+        union {
+            union g_addr gate;
+            enum blackhole_type bh_type;
+        };
+        union g_addr src;
+        union g_addr rmap_src;
+
+        char _hash_end[0];
+
+        struct nexthop_srv6 *nh_srv6 = nullptr;
+
+        // Constructors
+        NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in,
+                         const std::vector<nh_grp_full>& depends_in,
+                         const std::vector<nh_grp_full>& dependents_in);
+
+        NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in, enum nexthop_types_t type_in,
+                         vrf_id_t vrf_id_in, ifindex_t ifindex_in, std::string ifname_in,
+                         enum lsp_types_t label_type_in, enum blackhole_type bh_type_in,
+                         union g_addr gateway_in, union g_addr src_in, union g_addr rmap_src_in,
+                         std::uint8_t weight_in, std::uint8_t flags_in, bool has_srv6, bool has_seg6_segs,
+                         const struct nexthop_srv6* nh_srv6_in,
+                         const struct seg6_seg_stack* nh_seg6_segs_in,
+                         const std::vector<struct in6_addr>& nh_segs_in);
+
+        ~NextHopGroupFull();
+    };
+
+    /* --- Other C-specific structs (not in schema as objects) --- */
+    struct seg6_seg_stack {
+        enum srv6_headend_behavior encap_behavior;
+        std::uint8_t num_segs;
+        struct in6_addr seg[0];
+    };
+
+} // namespace swss
