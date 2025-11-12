@@ -4,10 +4,10 @@ BUILT_SOURCES = nexthopgroupfull.h nexthopgroupfull.cpp nexthopgroupfull_json.hp
 
 # Common dependencies
 schema_file = $(top_srcdir)/common/schema/NextHopGroupFull.json
-render_script = $(top_srcdir)/render_schema.py
+render_script = $(top_srcdir)/common/render_schema.py
 
 # Header
-nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
+common/nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
                     $(schema_file) \
                     $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
@@ -17,7 +17,7 @@ nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
 		header
 
 # Implementation
-nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
+common/nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
                       $(schema_file) \
                       $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
@@ -27,7 +27,7 @@ nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
 		source
 
 # JSON bindings header
-nexthopgroupfull_json.hpp: $(top_srcdir)/common/templates/nexthopgroupfull_json.h.j2 \
+common/nexthopgroupfull_json.h: $(top_srcdir)/common/templates/nexthopgroupfull_json.h.j2 \
                            $(schema_file) \
                            $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
@@ -43,7 +43,8 @@ EXTRA_DIST = \
     templates/nexthopgroupfull.cpp.j2 \
     schema/NextHopGroupFull.json
 
-lib_LTLIBRARIES += common/libswsscommon.la
+lib_LTLIBRARIES += common/libswsscommon.la \
+                   common/libnexthopgroup.la
 
 dist_swss_DATA = \
     common/consumer_state_table_pops.lua \
@@ -60,6 +61,10 @@ swssdir = $(datadir)/swss
 swsscommondir = /var/run/redis/sonic-db
 
 bin_PROGRAMS += common/swssloglevel
+
+common_libnexthopgroup_la_SOURCES = \
+    common/nexthopgroupfull.cpp \
+    common/nexthopgroupfull.h
 
 common_libswsscommon_la_SOURCES = \
     common/events_common.cpp         \
@@ -92,7 +97,6 @@ common_libswsscommon_la_SOURCES = \
     common/macaddress.cpp            \
     common/netdispatcher.cpp         \
     common/netlink.cpp               \
-    common/nexthopgroupfull.cpp      \
     common/nfnetlink.cpp             \
     common/notificationconsumer.cpp  \
     common/notificationproducer.cpp  \
@@ -134,6 +138,11 @@ common_libswsscommon_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(L
 common_libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
 common_libswsscommon_la_LIBADD = -lpthread $(LIBNL_LIBS) $(CODE_COVERAGE_LIBS) -lzmq -lboost_serialization -luuid
 common_libswsscommon_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
+
+common_libnexthopgroup_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(CODE_COVERAGE_CXXFLAGS)
+common_libnexthopgroup_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(CODE_COVERAGE_CPPFLAGS)
+common_libnexthopgroup_la_LIBADD = -lpthread $(CODE_COVERAGE_LIBS)
+common_libnexthopgroup_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
 
 if YANGMODS
 common_libswsscommon_la_SOURCES += \
