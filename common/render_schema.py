@@ -120,12 +120,8 @@ def main():
         }
     elif mode == "json_bindings":
         template_name = "nexthopgroupfull_json.h.j2"
-        # Add index to enum values for from_json switch logic
-        enums_with_index = {}
-        for name, values in enums.items():
-            enums_with_index[name] = [(i, v) for i, v in enumerate(values)]
         context = {
-            "enums": enums_with_index,
+            "enums": enums,  # dict: name -> list of strings (e.g., ["NEXTHOP_TYPE_INVALID", ...])
             "root_struct_name": root_struct_name
         }
 

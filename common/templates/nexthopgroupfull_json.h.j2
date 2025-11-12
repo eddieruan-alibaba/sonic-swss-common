@@ -46,14 +46,18 @@ inline void to_json(nlohmann::json& j, const {{ enum_name }}& e) {
         "{{ v }}",
         {%- endfor %}
     };
-    j = names[static_cast<int>(e)];
+    if (static_cast<int>(e) >= 0 && static_cast<int>(e) < static_cast<int>(sizeof(names)/sizeof(names[0]))) {
+        j = names[static_cast<int>(e)];
+    } else {
+        j = "UNKNOWN";
+    }
 }
 inline void from_json(const nlohmann::json& j, {{ enum_name }}& e) {
     const std::string s = j;
-    {%- for idx, v in enumerate(values) %}
-    if (s == "{{ v }}") { e = static_cast<{{ enum_name }}>({{ idx }}); return; }
+    {%- for v in values %}
+    if (s == "{{ v }}") { e = static_cast<{{ enum_name }}>({{ loop.index0 }}); return; }
     {%- endfor %}
-    e = static_cast<{{ enum_name }}>(0); // default to first
+    e = static_cast<{{ enum_name }}>(0); // default to first (e.g., *_INVALID or *_UNSPEC)
 }
 {%- endfor %}
 
@@ -111,7 +115,7 @@ inline void from_json(const nlohmann::json& j, seg6local_context& ctx) {
     j.at("argument_len").get_to(ctx.argument_len);
 }
 
-// --- seg6_seg_stack (Note: only segs content is serialized) ---
+// --- seg6_seg_stack ---
 inline void to_json(nlohmann::json& j, const seg6_seg_stack* stack) {
     if (!stack) {
         j = nullptr;
@@ -225,6 +229,7 @@ inline void from_json(const nlohmann::json& j, {{ root_struct_name }}& nh) {
 inline std::string to_json_string(const {{ root_struct_name }}& obj) {
     return nlohmann::json(obj).dump();
 }
+
 inline std::optional<{{ root_struct_name }}> from_json_string(const std::string& json_str) {
     try {
         auto j = nlohmann::json::parse(json_str);
