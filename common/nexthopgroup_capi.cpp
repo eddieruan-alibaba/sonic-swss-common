@@ -2,7 +2,6 @@
 
 #include "common/nexthopgroupfull.h"
 #include "common/nexthopgroupfull_json.h"
-#include "common/nexthopgroup_capi.h"
 #include <swss/ipaddress.h>
 #include <cstdlib>
 #include <cstring>
@@ -10,7 +9,16 @@
 #include <stdexcept>
 
 
+// Optional: bring into global scope for convenience
+using NextHopGroupFull = swss::NextHopGroupFull;
+
+// Declare C-compatible API directly (no need for header here)
 extern "C" {
+
+NextHopGroupFull* nexthopgroup_create(void);
+void nexthopgroup_free(NextHopGroupFull* obj);
+char* nexthopgroup_to_json(const NextHopGroupFull* obj);
+int nexthopgroup_from_json(const char* json_str, NextHopGroupFull** out_obj);
 
 NextHopGroupFull* nexthopgroup_create(void)
 {

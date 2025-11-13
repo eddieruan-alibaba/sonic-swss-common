@@ -76,6 +76,9 @@ namespace swss {
 
         struct nexthop_srv6 *nh_srv6 = nullptr;
 
+        // Add default constructor
+        NextHopGroupFull() = default;
+
         // Constructors
         NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in,
                          const std::vector<nh_grp_full>& depends_in,
