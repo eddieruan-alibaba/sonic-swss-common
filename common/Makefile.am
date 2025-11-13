@@ -1,6 +1,6 @@
 # --- Jinja2-generated files: header, implementation, and JSON bindings ---
 
-BUILT_SOURCES = nexthopgroupfull.h nexthopgroupfull.cpp nexthopgroupfull_json.hpp
+BUILT_SOURCES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nexthopgroupfull_json.h
 
 # Common dependencies
 schema_file = $(top_srcdir)/common/schema/NextHopGroupFull.json
