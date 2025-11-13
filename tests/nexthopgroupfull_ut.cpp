@@ -8,6 +8,7 @@
 
 #include "common/logger.h"
 #include "common/nexthopgroupfull.h"
+#include "common/nexthopgroup_capi.h"
 
 using namespace std;
 using namespace swss;
@@ -66,6 +67,11 @@ TEST(NextHopGroupFull, multi_nexthop)
     EXPECT_EQ(nhg.flags, 0);
     EXPECT_TRUE(nhg.ifname.empty());
     EXPECT_EQ(nhg.nh_srv6, nullptr);
+
+    // Test  Serializing C API
+    char* json_str = nexthopgroup_to_json(&nhg);
+    ASSERT_NE(json_str, nullptr);
+    std::cout << "Serialized NHG to JSON str: " << json_str << std::endl;
 
     cout << "TEST_NextHopGroupFull::multi_nexthop finished." << endl;
 }

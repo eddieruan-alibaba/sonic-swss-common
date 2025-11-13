@@ -63,6 +63,7 @@ bin_PROGRAMS += common/swssloglevel
 
 common_libswsscommon_la_SOURCES = \
     common/nexthopgroupfull.cpp      \
+    common/nexthopgroup_capi.cpp     \
     common/events_common.cpp         \
     common/events_service.cpp        \
     common/events.cpp                \
