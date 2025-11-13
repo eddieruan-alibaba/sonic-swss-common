@@ -7,19 +7,28 @@
 
 namespace swss {
 
+    /* Can't be generated defintions */
+    typedef std::uint32_t vrf_id_t;
+    typedef signed int ifindex_t;
+
+    union g_addr {
+        struct in_addr ipv4;
+        struct in6_addr ipv6;
+    };
+
+    /* Auto generated Enums */
+    {%- for enum_name, values in enums.items() %}
+    enum {{ enum_name }} {
+        {{ values | join(',\n        ') }}
+    };
+    {%- endfor %}
+
     /* Auto-generated simple structs */
     {%- for name, s in structs.items() if name not in special_structs %}
     struct {{ name }} {
         {%- for field in s.fields %}
         {{ field.cpp_type }} {{ field.name }};
         {%- endfor %}
-    };
-    {%- endfor %}
-
-    /* Enums */
-    {%- for enum_name, values in enums.items() %}
-    enum {{ enum_name }} {
-        {{ values | join(',\n        ') }}
     };
     {%- endfor %}
 
@@ -30,15 +39,14 @@ namespace swss {
         struct seg6_seg_stack *seg6_segs = nullptr;
     };
 
-    /* --- Special Struct: NextHopGroupFull --- */
-    typedef std::uint32_t vrf_id_t;
-    typedef signed int ifindex_t;
-
-    union g_addr {
-        struct in_addr ipv4;
-        struct in6_addr ipv6;
+    /* --- Other C-specific structs (not in schema as objects) --- */
+    struct seg6_seg_stack {
+        enum srv6_headend_behavior encap_behavior;
+        std::uint8_t num_segs;
+        struct in6_addr seg[0];
     };
 
+    /* --- Special Struct: NextHopGroupFull --- */
     struct NextHopGroupFull {
         std::uint32_t id = 0;
         std::uint32_t key = 0;
@@ -83,13 +91,6 @@ namespace swss {
                          const std::vector<struct in6_addr>& nh_segs_in);
 
         ~NextHopGroupFull();
-    };
-
-    /* --- Other C-specific structs (not in schema as objects) --- */
-    struct seg6_seg_stack {
-        enum srv6_headend_behavior encap_behavior;
-        std::uint8_t num_segs;
-        struct in6_addr seg[0];
     };
 
 } // namespace swss

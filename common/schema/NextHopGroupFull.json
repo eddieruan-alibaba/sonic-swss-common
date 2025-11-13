@@ -176,8 +176,8 @@
     "seg6local_context": {
       "type": "object",
       "properties": {
-        "nh4": { "$ref": "#/$defs/ip_address" },
-        "nh6": { "$ref": "#/$defs/ip_address" },
+        "nh4": { "$ref": "#/$defs/in_address" },
+        "nh6": { "$ref": "#/$defs/in6_address" },
         "table": { "type": "integer", "minimum": 0 },
         "flv": { "$ref": "#/$defs/seg6local_flavors_info" },
         "block_len": { "type": "integer", "minimum": 0, "maximum": 255 },
@@ -198,13 +198,14 @@
         "SRV6_HEADEND_BEHAVIOR_H_ENCAPS_L2_RED"
       ]
     },
-    "seg6_seg_stack": {
+    "seg6_seg_stack_guts": {
       "type": "object",
       "properties": {
         "encap_behavior": { "$ref": "#/$defs/srv6_headend_behavior" },
+        "num_segs": { "$ref": "#/$defs/uint8" },
         "segs": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/ip_address" },
+          "type": "array_zero",
+          "items": { "$ref": "#/$defs/in6_address" },
           "minItems": 1
         }
       },

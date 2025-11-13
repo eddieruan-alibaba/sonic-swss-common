@@ -12,6 +12,10 @@ def json_type_to_cpp(prop, defs):
         ref = prop["$ref"]
         if ref == "#/$defs/ip_address":
             return "union g_addr"
+        elif ref == "#/$defs/in_address":
+            return "struct in_addr"
+        elif ref == "#/$defs/in6_address":
+            return "struct in6_addr"
         elif ref.startswith("#/$defs/"):
             typename = ref.split("/")[-1]
             target = defs.get(typename, {})
