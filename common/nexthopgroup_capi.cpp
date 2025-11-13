@@ -44,19 +44,18 @@ char* nexthopgroup_to_json(const NextHopGroupFull* obj)
     }
 }
 
-int nexthopgroup_from_json(const char* json_str, NextHopGroupFull** out_obj)
+int nexthopgroup_from_json(const char* json_str, swss::NextHopGroupFull** out_obj)
 {
-    if (!json_str || !out_obj) {
-        return -1;
-    }
-
+    if (!json_str || !out_obj) return -1;
     try {
-        auto opt = from_json_string(json_str);
-        if (!opt) {
+        swss::NextHopGroupFull* obj = new swss::NextHopGroupFull();
+        if (swss::from_json_string(json_str, *obj)) {
+            *out_obj = obj;
+            return 0;
+        } else {
+            delete obj;
             return -1;
         }
-        *out_obj = new NextHopGroupFull(std::move(*opt));
-        return 0;
     } catch (...) {
         return -1;
     }

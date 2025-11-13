@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
-#include <optional>
 #include <arpa/inet.h> // for inet_ntop / inet_pton
 
 namespace swss {
@@ -230,14 +229,13 @@ inline std::string to_json_string(const {{ root_struct_name }}& obj) {
     return nlohmann::json(obj).dump();
 }
 
-inline std::optional<{{ root_struct_name }}> from_json_string(const std::string& json_str) {
+inline bool from_json_string(const std::string& json_str, {{ root_struct_name }}& out_obj) {
     try {
         auto j = nlohmann::json::parse(json_str);
-        {{ root_struct_name }} obj;
-        j.get_to(obj);
-        return obj;
+        j.get_to(out_obj);
+        return true;
     } catch (const std::exception&) {
-        return std::nullopt;
+        return false;
     }
 }
 
