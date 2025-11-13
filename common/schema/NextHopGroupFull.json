@@ -202,9 +202,8 @@
       "type": "object",
       "properties": {
         "encap_behavior": { "$ref": "#/$defs/srv6_headend_behavior" },
-        "num_segs": { "$ref": "#/$defs/uint8" },
         "segs": {
-          "type": "array_zero",
+          "type": "array",
           "items": { "$ref": "#/$defs/in6_address" },
           "minItems": 1
         }

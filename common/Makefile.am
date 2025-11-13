@@ -43,8 +43,7 @@ EXTRA_DIST = \
     templates/nexthopgroupfull.cpp.j2 \
     schema/NextHopGroupFull.json
 
-lib_LTLIBRARIES += common/libswsscommon.la \
-                   common/libnexthopgroup.la
+lib_LTLIBRARIES += common/libswsscommon.la
 
 dist_swss_DATA = \
     common/consumer_state_table_pops.lua \
@@ -62,11 +61,8 @@ swsscommondir = /var/run/redis/sonic-db
 
 bin_PROGRAMS += common/swssloglevel
 
-common_libnexthopgroup_la_SOURCES = \
-    common/nexthopgroupfull.cpp \
-    common/nexthopgroupfull.h
-
 common_libswsscommon_la_SOURCES = \
+    common/nexthopgroupfull.cpp      \
     common/events_common.cpp         \
     common/events_service.cpp        \
     common/events.cpp                \
@@ -138,11 +134,6 @@ common_libswsscommon_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(L
 common_libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
 common_libswsscommon_la_LIBADD = -lpthread $(LIBNL_LIBS) $(CODE_COVERAGE_LIBS) -lzmq -lboost_serialization -luuid
 common_libswsscommon_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
-
-common_libnexthopgroup_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(CODE_COVERAGE_CXXFLAGS)
-common_libnexthopgroup_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(CODE_COVERAGE_CPPFLAGS)
-common_libnexthopgroup_la_LIBADD = -lpthread $(CODE_COVERAGE_LIBS)
-common_libnexthopgroup_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
 
 if YANGMODS
 common_libswsscommon_la_SOURCES += \
