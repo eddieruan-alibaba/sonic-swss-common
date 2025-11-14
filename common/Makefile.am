@@ -63,7 +63,6 @@ bin_PROGRAMS += common/swssloglevel
 
 common_libswsscommon_la_SOURCES = \
     common/nexthopgroupfull.cpp      \
-    common/nexthopgroup_capi.cpp     \
     common/events_common.cpp         \
     common/events_service.cpp        \
     common/events.cpp                \
@@ -116,6 +115,7 @@ common_libswsscommon_la_SOURCES = \
     common/asyncdbupdater.cpp        \
     common/redis_table_waiter.cpp    \
     common/interface.h               \
+    common/c-api/nexthopgroup_capi.cpp     \
     common/c-api/util.cpp                  \
     common/c-api/dbconnector.cpp           \
     common/c-api/configdbconnector.cpp     \

@@ -72,6 +72,11 @@ TEST(NextHopGroupFull, multi_nexthop)
     string json_str = to_json_string(nhg);
     std::cout << "Serialized NHG to JSON str: " << json_str << std::endl;
 
+    NextHopGroupFull out_obj;
+    bool ret = from_json_string(json_str, out_obj);
+    std::cout << "Deserialized NHG from JSON str: "  << ret << std::endl;
+    EXPECT_EQ(ret, true);
+
     cout << "TEST_NextHopGroupFull::multi_nexthop finished." << endl;
 }
 
