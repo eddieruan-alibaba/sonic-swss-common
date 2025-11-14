@@ -14,7 +14,7 @@ NextHopGroupFull* nexthopgroup_create(void);
 void nexthopgroup_free(NextHopGroupFull* obj);
 
 // JSON APIs ---
-char* nexthopgroup_to_json(const NextHopGroupFull* obj);
+char* nexthopgroup_to_json(NextHopGroupFull* obj);
 
 
 #ifdef __cplusplus

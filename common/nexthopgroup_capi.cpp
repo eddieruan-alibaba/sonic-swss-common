@@ -17,7 +17,7 @@ extern "C" {
 
 NextHopGroupFull* nexthopgroup_create(void);
 void nexthopgroup_free(NextHopGroupFull* obj);
-char* nexthopgroup_to_json(const NextHopGroupFull* obj);
+char* nexthopgroup_to_json(NextHopGroupFull* obj);
 
 NextHopGroupFull* nexthopgroup_create(void)
 {
@@ -33,7 +33,7 @@ void nexthopgroup_free(NextHopGroupFull* obj)
     delete obj;
 }
 
-char* nexthopgroup_to_json(const NextHopGroupFull* obj)
+char* nexthopgroup_to_json(NextHopGroupFull* obj)
 {
     if (!obj) {
         return nullptr;
