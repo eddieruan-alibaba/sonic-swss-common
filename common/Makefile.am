@@ -36,11 +36,12 @@ common/nexthopgroupfull_json.h: $(top_srcdir)/common/templates/nexthopgroupfull_
 		$@ \
 		json_bindings
 
-CLEANFILES = nexthopgroupfull.h nexthopgroupfull.cpp
+CLEANFILES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nexthopgroupfull_json.h
 
 EXTRA_DIST = \
     templates/nexthopgroupfull.h.j2 \
     templates/nexthopgroupfull.cpp.j2 \
+    templates/nexthopgroupfull_json.h.j2 \
     schema/NextHopGroupFull.json
 
 lib_LTLIBRARIES += common/libswsscommon.la
