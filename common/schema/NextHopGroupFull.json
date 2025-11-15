@@ -7,71 +7,98 @@
   "properties": {
     "id": {
       "type": "integer",
+      "position" : 1,
       "minimum": 0,
+      "default_value" : "0",
       "description": "Nexthop group ID"
     },
     "key": {
       "type": "integer",
+      "position" : 1,
       "minimum": 0,
+      "default_value" : "0",
       "description": "Hash key from Zebra"
     },
     "weight": {
       "type": "integer",
+      "position" : 1,
       "minimum": 0,
       "maximum": 255,
+      "default_value" : "0",
       "description": "Weight for unequal-cost ECMP"
     },
     "flags": {
       "type": "integer",
+      "position" : 1,
       "minimum": 0,
+      "default_value" : "0",
       "description": "Bit flags (e.g., NEXTHOP_FLAG_ONLINK = 8)"
     },
     "ifname": {
       "type": "string",
+      "position" : 2,
+      "default_value" : "\"\"",
       "description": "Interface name"
     },
     "depends": {
-      "$ref": "#/$defs/nh_grp_full_array"
+      "position" : 2,
+      "type": "array",
+      "items": { "$ref": "#/$defs/nh_grp_full" }
     },
     "dependents": {
-      "$ref": "#/$defs/nh_grp_full_array"
+      "position" : 2,
+      "type": "array",
+      "items": { "$ref": "#/$defs/nh_grp_full" }
     },
     "type": {
+      "position" : 3,
+      "default_value" : "NEXTHOP_TYPE_INVALID",
       "$ref": "#/$defs/nexthop_types_t"
     },
     "vrf_id": {
       "type": "integer",
+      "position" : 3,
       "minimum": 0,
+      "default_value" : "0",
       "description": "VRF ID"
     },
     "ifindex": {
       "type": "integer",
+      "position" : 3,
+      "default_value" : "0",
       "description": "Interface index (can be negative)"
     },
     "nh_label_type": {
+      "position" : 3,
+      "default_value" : "ZEBRA_LSP_NONE",
       "$ref": "#/$defs/lsp_types_t"
     },
-    "gateway": {
+    "gate": {
+      "position" : 4,
       "$ref": "#/$defs/ip_address",
       "description": "Next-hop gateway address (IPv4 or IPv6)"
     },
+    "bh_type": {
+      "$ref": "#/$defs/blackhole_type",
+      "position" : 4,
+      "description": "Blackhole type (only present if type is BLACKHOLE)"
+    },
     "src": {
       "$ref": "#/$defs/ip_address",
+      "position" : 5,
       "description": "Source address"
     },
     "rmap_src": {
       "$ref": "#/$defs/ip_address",
+      "position" : 5,
       "description": "Route-map source address"
     },
-    "bh_type": {
-      "$ref": "#/$defs/blackhole_type",
-      "description": "Blackhole type (only present if type is BLACKHOLE)"
-    },
+
     "nh_srv6": {
-      "anyOf": [
-        { "type": "null" },
-        { "$ref": "#/$defs/nexthop_srv6" }
-      ],
+      "position" : 6,
+      "default_value" : "nullptr",
+      "data_prefix" : "*",
+      "$ref": "#/$defs/nexthop_srv6" ,
       "description": "SRv6 information (optional)"
     }
   },
@@ -93,10 +120,6 @@
       },
       "required": ["id", "weight", "num_direct"],
       "additionalProperties": false
-    },
-    "nh_grp_full_array": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/nh_grp_full" }
     },
     "nexthop_types_t": {
       "type": "string",
@@ -198,14 +221,15 @@
         "SRV6_HEADEND_BEHAVIOR_H_ENCAPS_L2_RED"
       ]
     },
-    "seg6_seg_stack_guts": {
+    "seg6_seg_stack": {
       "type": "object",
       "properties": {
         "encap_behavior": { "$ref": "#/$defs/srv6_headend_behavior" },
-        "segs": {
+        "num_segs": { "$ref": "#/$defs/uint8" },
+        "seg": {
           "type": "array",
           "items": { "$ref": "#/$defs/in6_address" },
-          "minItems": 1
+          "minItems": 0
         }
       },
       "required": ["encap_behavior", "segs"],

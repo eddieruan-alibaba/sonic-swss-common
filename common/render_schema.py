@@ -12,6 +12,8 @@ def json_type_to_cpp(prop, defs):
         ref = prop["$ref"]
         if ref == "#/$defs/ip_address":
             return "union g_addr"
+        elif ref == "#/$defs/uint8":
+            return "std::uint8_t"
         elif ref == "#/$defs/in_address":
             return "struct in_addr"
         elif ref == "#/$defs/in6_address":
@@ -33,6 +35,8 @@ def json_type_to_cpp(prop, defs):
         return "std::string"
     elif typ == "array":
         item_type = json_type_to_cpp(prop.get("items", {}), defs)
+        if "minItems" in prop and prop.get("minItems", 0) == 0:
+            return  item_type
         return f"std::vector<{item_type}>"
     elif typ == "boolean":
         return "bool"
@@ -55,7 +59,16 @@ def build_root_struct(schema, defs):
     fields = []
     for name, prop in schema.get("properties", {}).items():
         cpp_type = json_type_to_cpp(prop, defs)
-        fields.append({"name": name, "cpp_type": cpp_type})
+        data = {"name": name, "cpp_type": cpp_type}
+        position = prop.get("position", 0)
+        data["position"] = position
+        if "default_value" in prop:
+            dvalue = prop.get("default_value")
+            data["default_value"] = dvalue
+        if "data_prefix" in prop:
+            dvalue = prop.get("data_prefix")
+            data["data_prefix"] = dvalue
+        fields.append(data)
     name = schema.get("title", "NextHopGroupFull")
     return {"name": name, "fields": fields}
 
@@ -70,7 +83,10 @@ def build_def_structs(defs):
                 cpp_type = json_type_to_cpp(fprop, defs)
                 if name == "nexthop_srv6" and fname == "seg6_segs":
                     cpp_type = "struct seg6_seg_stack*"
-                fields.append({"name": fname, "cpp_type": cpp_type})
+                if fprop.get("type") == "array" and fprop.get("minItems", 0) == 0:
+                    fields.append({"name": fname, "cpp_type": cpp_type, "zeroarray": True})
+                else:
+                    fields.append({"name": fname, "cpp_type": cpp_type})
             structs[name] = {"name": name, "fields": fields}
     return structs
 
@@ -102,7 +118,7 @@ def main():
     all_structs = def_structs.copy()
     all_structs[root_struct["name"]] = root_struct
 
-    special_structs = {"nexthop_srv6", root_struct["name"]}
+    special_structs = {"nexthop_srv6", "seg6_seg_stack", root_struct["name"]}
     root_struct_name = root_struct["name"]
 
     # Jinja setup
