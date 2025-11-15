@@ -2,7 +2,6 @@
 
 #include "common/nexthopgroupfull.h"
 #include "common/nexthopgroupfull_json.h"
-#include <swss/ipaddress.h>
 #include <cstdlib>
 #include <cstring>
 #include <string>
