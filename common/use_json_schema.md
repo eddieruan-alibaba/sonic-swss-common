@@ -14,4 +14,5 @@ To support this approach, three new directories have been introduced:
 
 * schema/ – Contains the JSON schemas that define the data exchanged between Zebra and fpmsyncd.
 * templates/ – Holds code generation templates used to produce C++ serialization/deserialization logic from the schemas.
+  * templates/references  - Contains generated codes for debugging and reference only. They would NOT be used in compile.
 * scripts/ – Includes render_schema.py, a script that processes the JSON schemas using the templates to generate the final C++ source files.
