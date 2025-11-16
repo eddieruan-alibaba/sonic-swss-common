@@ -1,6 +1,6 @@
-# ** Using JSON Schema to Define Zebra, fpmsyncd Messages **
+# **Using JSON Schema to Define Zebra, fpmsyncd Messages**
 
-# Purpose of a Data Schema
+# Purpose of Adopting Data Schema
 The main goal of adopting a data schema is to precisely specify the data exchanged between Zebra and fpmsyncd, and to automatically generate the corresponding C++ serialization and deserialization code. This approach eliminates errors commonly introduced by manual coding and ensures consistency across the system.
 
 # Why JSON Schema?
@@ -9,7 +9,7 @@ JSON Schema is chosen because it offers a standardized, human-readable, and lang
 # Design Philosophy
 The JSON schema defines the logical data model and serves as the single source of truth for the message format. However, C++-specific implementation details such as constructors, memory management, unions, and logging—are explicitly handled in handwritten code, as these concepts cannot be expressed in JSON Schema.
 
-# Code Organization
+# Code Layout
 To support this approach, three new directories have been introduced:
 
 * schema/ – Contains the JSON schemas that define the data exchanged between Zebra and fpmsyncd.
