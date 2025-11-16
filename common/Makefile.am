@@ -4,9 +4,9 @@ BUILT_SOURCES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nex
 
 # Common dependencies
 schema_file = $(top_srcdir)/common/schema/NextHopGroupFull.json
-render_script = $(top_srcdir)/common/render_schema.py
+render_script = $(top_srcdir)/common/scripts/render_schema.py
 
-# Header
+# Header file for nexthopgroupfull.h
 common/nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
                     $(schema_file) \
                     $(render_script)
@@ -16,7 +16,7 @@ common/nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 
 		$@ \
 		header
 
-# Implementation
+# Implementation file for nexthopgroupfull.cpp
 common/nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
                       $(schema_file) \
                       $(render_script)
@@ -26,7 +26,7 @@ common/nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp
 		$@ \
 		source
 
-# JSON bindings header
+# JSON bindings inline header file for to_json / from_json handling
 common/nexthopgroupfull_json.h: $(top_srcdir)/common/templates/nexthopgroupfull_json.h.j2 \
                            $(schema_file) \
                            $(render_script)
@@ -38,11 +38,7 @@ common/nexthopgroupfull_json.h: $(top_srcdir)/common/templates/nexthopgroupfull_
 
 CLEANFILES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nexthopgroupfull_json.h
 
-EXTRA_DIST = \
-    templates/nexthopgroupfull.h.j2 \
-    templates/nexthopgroupfull.cpp.j2 \
-    templates/nexthopgroupfull_json.h.j2 \
-    schema/NextHopGroupFull.json
+# End of Jinja2 generated part
 
 lib_LTLIBRARIES += common/libswsscommon.la
 
