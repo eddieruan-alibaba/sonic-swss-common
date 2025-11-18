@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 #include "common/logger.h"
-#include "common/nexthopgroupfull.h"
-#include "common/nexthopgroupfull_json.h"
+#include "common/nexthopgroup/nexthopgroupfull.h"
+#include "common/nexthopgroup/nexthopgroupfull_json.h"
 
 using namespace std;
 using namespace swss;

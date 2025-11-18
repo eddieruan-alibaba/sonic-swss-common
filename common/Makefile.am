@@ -72,6 +72,17 @@ common_libnexthopgroup_la_SOURCES = \
     common/nexthopgroup/nexthopgroupfull.cpp      \
     common/c-api/nexthopgroup/nexthopgroup_capi.cpp
 
+# Install headers to a dedicated subdir
+nexthopgroup_headerdir = $(includedir)/nexthopgroup
+nexthopgroup_header_HEADERS = \
+    common/nexthopgroup/nexthopgroupfull.h \
+    common/nexthopgroup/nexthopgroupfull_json.h
+
+# Install C-API headers
+nexthopgroup_capi_headerdir = $(includedir)/nexthopgroup/c-api
+nexthopgroup_capi_header_HEADERS = \
+    c-api/nexthopgroup/nexthopgroup_capi.h
+
 common_libswsscommon_la_SOURCES = \
     common/events_common.cpp         \
     common/events_service.cpp        \
