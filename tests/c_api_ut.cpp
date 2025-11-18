@@ -17,7 +17,7 @@
 #include "common/c-api/zmqproducerstatetable.h"
 #include "common/c-api/zmqserver.h"
 #include "common/c-api/logger.h"
-#include "common/c-api/nexthopgroup_capi.h"
+#include "common/c-api/nexthopgroup/nexthopgroup_capi.h"
 #include "common/select.h"
 #include "common/subscriberstatetable.h"
 #include "gtest/gtest.h"

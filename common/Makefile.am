@@ -50,7 +50,7 @@ EXTRA_DIST = \
 
 # End of Jinja2 generated part
 
-lib_LTLIBRARIES += common/libswsscommon.la common/nexthopgroup/libnexthopgroup.la
+lib_LTLIBRARIES += common/libswsscommon.la common/libnexthopgroup.la
 
 dist_swss_DATA = \
     common/consumer_state_table_pops.lua \
