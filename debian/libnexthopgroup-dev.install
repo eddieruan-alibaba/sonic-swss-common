@@ -1,0 +1,2 @@
+common/*.h usr/include/swss
+common/c-api/*.h usr/include/swss/c-api

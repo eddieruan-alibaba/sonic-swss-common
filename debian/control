@@ -17,6 +17,18 @@ Depends: libswsscommon (= ${binary:Version}), libboost-dev | libboost1.71-dev | 
 Section: libdevel
 Description: This package contains development files for Switch State Service.
 
+Package: libnexthopgroup
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Pre-Depends}
+Section: libs
+Description: This package contains Switch State Service common library.
+
+Package: libnexthopgroup-dev
+Architecture: any
+Depends: libnexthopgroup (= ${binary:Version}), libboost-dev | libboost1.71-dev | libboost1.83-dev
+Section: libdevel
+Description: This package contains development files for nexthopgroup
+
 Package: python-swsscommon
 Architecture: any
 Build-Profiles: <!nopython2>

@@ -46,7 +46,7 @@ EXTRA_DIST = \
 
 # End of Jinja2 generated part
 
-lib_LTLIBRARIES += common/libswsscommon.la
+lib_LTLIBRARIES += common/libswsscommon.la，common/libnexthopgroup.la
 
 dist_swss_DATA = \
     common/consumer_state_table_pops.lua \
@@ -64,8 +64,11 @@ swsscommondir = /var/run/redis/sonic-db
 
 bin_PROGRAMS += common/swssloglevel
 
-common_libswsscommon_la_SOURCES = \
+common_nexthopgroup_la_SOURCES = \
     common/nexthopgroupfull.cpp      \
+    common/c-api/nexthopgroup_capi.cpp
+
+common_libswsscommon_la_SOURCES = \
     common/events_common.cpp         \
     common/events_service.cpp        \
     common/events.cpp                \
@@ -118,7 +121,6 @@ common_libswsscommon_la_SOURCES = \
     common/asyncdbupdater.cpp        \
     common/redis_table_waiter.cpp    \
     common/interface.h               \
-    common/c-api/nexthopgroup_capi.cpp     \
     common/c-api/util.cpp                  \
     common/c-api/dbconnector.cpp           \
     common/c-api/configdbconnector.cpp     \
@@ -138,6 +140,11 @@ common_libswsscommon_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(L
 common_libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
 common_libswsscommon_la_LIBADD = -lpthread $(LIBNL_LIBS) $(CODE_COVERAGE_LIBS) -lzmq -lboost_serialization -luuid
 common_libswsscommon_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
+
+common_libnexthopgroup_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CFLAGS) $(CODE_COVERAGE_CXXFLAGS)
+common_libnexthopgroup_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
+common_libnexthopgroup_la_LIBADD = -lpthread
+common_libnexthopgroup_la_LDFLAGS = -Wl,-z,now $(LDFLAGS)
 
 if YANGMODS
 common_libswsscommon_la_SOURCES += \
