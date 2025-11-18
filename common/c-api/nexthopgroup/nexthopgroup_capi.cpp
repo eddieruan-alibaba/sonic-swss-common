@@ -1,7 +1,7 @@
 // nexthopgroup_capi.cpp
 
-#include "common/nexthopgroupfull.h"
-#include "common/nexthopgroupfull_json.h"
+#include "common/nexthopgroup/nexthopgroupfull.h"
+#include "common/nexthopgroup/nexthopgroupfull_json.h"
 #include <cstdlib>
 #include <cstring>
 #include <string>

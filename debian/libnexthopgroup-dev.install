@@ -1,2 +1,2 @@
-common/*.h usr/include/swss
-common/c-api/*.h usr/include/swss/c-api
+common/nexthopgroup/nexthopgroup*.h usr/include/swss
+common/c-api/nexthopgroup/nexthopgroup*.h usr/include/swss/c-api

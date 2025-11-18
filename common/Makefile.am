@@ -1,52 +1,56 @@
 # --- Jinja2-generated files: header, implementation, and JSON bindings ---
 
-BUILT_SOURCES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nexthopgroupfull_json.h
+BUILT_SOURCES = common/nexthopgroup/nexthopgroupfull.h \
+                common/nexthopgroup/nexthopgroupfull.cpp \
+                common/nexthopgroup/nexthopgroupfull_json.h
 
 # Common dependencies
-schema_file = $(top_srcdir)/common/schema/NextHopGroupFull.json
-render_script = $(top_srcdir)/common/scripts/render_schema.py
+schema_file = $(top_srcdir)/common/nexthopgroup/schema/NextHopGroupFull.json
+render_script = $(top_srcdir)/common/nexthopgroup/scripts/render_schema.py
 
 # Header file for nexthopgroupfull.h
-common/nexthopgroupfull.h: $(top_srcdir)/common/templates/nexthopgroupfull.h.j2 \
+common/nexthopgroup/nexthopgroupfull.h: $(top_srcdir)/common/nexthopgroup/templates/nexthopgroupfull.h.j2 \
                     $(schema_file) \
                     $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
 		$(schema_file) \
-		$(top_srcdir)/common/templates \
+		$(top_srcdir)/common/nexthopgroup/templates \
 		$@ \
 		header
 
 # Implementation file for nexthopgroupfull.cpp
-common/nexthopgroupfull.cpp: $(top_srcdir)/common/templates/nexthopgroupfull.cpp.j2 \
+common/nexthopgroup/nexthopgroupfull.cpp: $(top_srcdir)/common/nexthopgroup/templates/nexthopgroupfull.cpp.j2 \
                       $(schema_file) \
                       $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
 		$(schema_file) \
-		$(top_srcdir)/common/templates \
+		$(top_srcdir)/common/nexthopgroup/templates \
 		$@ \
 		source
 
 # JSON bindings inline header file for to_json / from_json handling
-common/nexthopgroupfull_json.h: $(top_srcdir)/common/templates/nexthopgroupfull_json.h.j2 \
+common/nexthopgroup/nexthopgroupfull_json.h: $(top_srcdir)/common/nexthopgroup/templates/nexthopgroupfull_json.h.j2 \
                            $(schema_file) \
                            $(render_script)
 	$(AM_V_GEN)$(PYTHON) $(render_script) \
 		$(schema_file) \
-		$(top_srcdir)/common/templates \
+		$(top_srcdir)/common/nexthopgroup/templates \
 		$@ \
 		json_bindings
 
-CLEANFILES = common/nexthopgroupfull.h common/nexthopgroupfull.cpp common/nexthopgroupfull_json.h
+CLEANFILES = common/nexthopgroup/nexthopgroupfull.h \
+             common/nexthopgroup/nexthopgroupfull.cpp \
+             common/nexthopgroup/nexthopgroupfull_json.h
 
 EXTRA_DIST = \
-    templates/nexthopgroupfull.h.j2 \
-    templates/nexthopgroupfull.cpp.j2 \
-    templates/nexthopgroupfull_json.h.j2 \
-    schema/NextHopGroupFull.json
+    templates/nexthopgroup/nexthopgroupfull.h.j2 \
+    templates/nexthopgroup/nexthopgroupfull.cpp.j2 \
+    templates/nexthopgroup/nexthopgroupfull_json.h.j2 \
+    schema/nexthopgroup/NextHopGroupFull.json
 
 # End of Jinja2 generated part
 
-lib_LTLIBRARIES += common/libswsscommon.la common/libnexthopgroup.la
+lib_LTLIBRARIES += common/libswsscommon.la common/nexthopgroup/libnexthopgroup.la
 
 dist_swss_DATA = \
     common/consumer_state_table_pops.lua \
@@ -65,8 +69,8 @@ swsscommondir = /var/run/redis/sonic-db
 bin_PROGRAMS += common/swssloglevel
 
 common_libnexthopgroup_la_SOURCES = \
-    common/nexthopgroupfull.cpp      \
-    common/c-api/nexthopgroup_capi.cpp
+    common/nexthopgroup/nexthopgroupfull.cpp      \
+    common/c-api/nexthopgroup/nexthopgroup_capi.cpp
 
 common_libswsscommon_la_SOURCES = \
     common/events_common.cpp         \

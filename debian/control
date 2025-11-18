@@ -21,7 +21,7 @@ Package: libnexthopgroup
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Pre-Depends}
 Section: libs
-Description: This package contains Switch State Service common library.
+Description: This package contains nexthopgroup library
 
 Package: libnexthopgroup-dev
 Architecture: any
