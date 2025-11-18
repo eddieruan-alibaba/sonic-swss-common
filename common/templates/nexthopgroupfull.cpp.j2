@@ -1,5 +1,4 @@
 #include "nexthopgroupfull.h"
-#include "common/logger.h"
 
 #include <iostream>
 #include <cstring>
@@ -16,13 +15,13 @@ using namespace swss;
                 const std::vector<nh_grp_full>& dependents_in)
     : id(id_in), key(key_in), depends(depends_in), dependents(dependents_in)
 {
-    SWSS_LOG_DEBUG("{{ root_struct_name }} construction started (multi-nexthop)");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} construction started (multi-nexthop)");
     cout << "[CPP DEBUG] {{ root_struct_name }} construction started (multi-nexthop)" << endl;
     memset(&gate, 0, sizeof(gate));
     bh_type = BLACKHOLE_UNSPEC;
     memset(&src, 0, sizeof(src));
     memset(&rmap_src, 0, sizeof(rmap_src));
-    SWSS_LOG_DEBUG("{{ root_struct_name }} construction finished (multi-nexthop)");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} construction finished (multi-nexthop)");
     cout << "[CPP DEBUG] {{ root_struct_name }} construction finished (multi-nexthop)" << endl;
 }
 
@@ -39,7 +38,7 @@ using namespace swss;
       type(type_in), vrf_id(vrf_id_in), ifindex(ifindex_in), nh_label_type(label_type_in),
       src(src_in), rmap_src(rmap_src_in), nh_srv6(nullptr)
 {
-    SWSS_LOG_DEBUG("{{ root_struct_name }} construction started (singleton)");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} construction started (singleton)");
     cout << "[CPP DEBUG] {{ root_struct_name }} construction started (singleton)" << endl;
 
     /* Initialize union member */
@@ -49,31 +48,32 @@ using namespace swss;
     /* Check if need to allocate the nexthop_srv6 structure */
     if (has_srv6 && nh_srv6_in != nullptr)
     {
-        SWSS_LOG_DEBUG("{{ root_struct_name }} has srv6, allocating...");
+        //SWSS_LOG_DEBUG("{{ root_struct_name }} has srv6, allocating...");
         cout << "[CPP DEBUG] {{ root_struct_name }} has srv6, allocating..." << endl;
         nh_srv6 = (struct nexthop_srv6 *)malloc(sizeof(struct nexthop_srv6));
         if (!nh_srv6) {
-            SWSS_LOG_ERROR("nh_srv6 allocation failed in {{ root_struct_name }} constructor, abort");
+            //SWSS_LOG_ERROR("nh_srv6 allocation failed in {{ root_struct_name }} constructor, abort");
             return;
         }
 
         memcpy(nh_srv6, nh_srv6_in, sizeof(struct nexthop_srv6));
-        SWSS_LOG_DEBUG("{{ root_struct_name }} constructor finished nh_srv6 initialization");
+        //SWSS_LOG_DEBUG("{{ root_struct_name }} constructor finished nh_srv6 initialization");
         cout << "[CPP DEBUG] {{ root_struct_name }} constructor finished nh_srv6 initialization" << endl;
     }
     else
-        SWSS_LOG_DEBUG("{{ root_struct_name }} does not have srv6 info");
+        //SWSS_LOG_DEBUG("{{ root_struct_name }} does not have srv6 info");
+        cout << "{{ root_struct_name }} does not have srv6 info";
 
     /* Check if need to allocate the seg6_seg_stack structure */
     if (has_seg6_segs && nh_seg6_segs_in != nullptr)
     {
-        SWSS_LOG_DEBUG("{{ root_struct_name }} has seg6_segs, allocating...");
+        //SWSS_LOG_DEBUG("{{ root_struct_name }} has seg6_segs, allocating...");
         cout << "[CPP DEBUG] {{ root_struct_name }} has seg6_segs, allocating..." << endl;
         size_t total_size = sizeof(struct seg6_seg_stack) +
                                     nh_seg6_segs_in->num_segs * sizeof(struct in6_addr);
         nh_srv6->seg6_segs = (struct seg6_seg_stack *)malloc(total_size);
         if (!nh_srv6->seg6_segs) {
-            SWSS_LOG_ERROR("seg6_segs allocation failed in {{ root_struct_name }} constructor, abort");
+            //SWSS_LOG_ERROR("seg6_segs allocation failed in {{ root_struct_name }} constructor, abort");
             free(nh_srv6);
             nh_srv6 = nullptr;
             return;
@@ -90,36 +90,36 @@ using namespace swss;
                 else
                 {
                     memset(&nh_srv6->seg6_segs->seg[i], 0, sizeof(in6_addr));
-                    SWSS_LOG_DEBUG("Size between num_segs and vector segs is not matching, num_segs %d, vector size %zu",
-                                nh_srv6->seg6_segs->num_segs, nh_segs_in.size());
+                    //SWSS_LOG_DEBUG("Size between num_segs and vector segs is not matching, num_segs %d, vector size %zu",
+                    //            nh_srv6->seg6_segs->num_segs, nh_segs_in.size());
                     cout << "[CPP DEBUG] Size between num_segs and vector segs is not matching, num_segs " << nh_srv6->seg6_segs->num_segs
                         << ", vector size " << nh_segs_in.size() << endl;
                 }
             }
         }
     }
-    SWSS_LOG_DEBUG("{{ root_struct_name }} construction finished (singleton)");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} construction finished (singleton)");
     cout << "[CPP DEBUG] {{ root_struct_name }} construction finished (singleton)" << endl;
 }
 
 /* Destructor of {{ root_struct_name }} */
 {{ root_struct_name }}::~{{ root_struct_name }}()
 {
-    SWSS_LOG_DEBUG("{{ root_struct_name }} destructor started");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} destructor started");
     cout << "[CPP DEBUG] {{ root_struct_name }} destructor started" << endl;
     if (nh_srv6 != nullptr)
     {
         if (nh_srv6->seg6_segs != nullptr)
         {
-            SWSS_LOG_DEBUG("Free seg6_segs in {{ root_struct_name }} Destructor");
+            //SWSS_LOG_DEBUG("Free seg6_segs in {{ root_struct_name }} Destructor");
             cout << "[CPP DEBUG] Free seg6_segs in {{ root_struct_name }} Destructor" << endl;
             free(nh_srv6->seg6_segs);
         }
-        SWSS_LOG_DEBUG("Free nh_srv6 in {{ root_struct_name }} Destructor");
+        //SWSS_LOG_DEBUG("Free nh_srv6 in {{ root_struct_name }} Destructor");
         cout << "[CPP DEBUG] Free nh_srv6 in {{ root_struct_name }} Destructor" << endl;
         free(nh_srv6);
     }
 
-    SWSS_LOG_DEBUG("{{ root_struct_name }} has been destroyed successfully.");
+    //SWSS_LOG_DEBUG("{{ root_struct_name }} has been destroyed successfully.");
     cout << "[CPP DEBUG] {{ root_struct_name }} has been destroyed successfully." << endl;
 }
