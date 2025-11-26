@@ -128,8 +128,9 @@ namespace swss {
     #define NEXTHOP_FLAG_ONLINK     (1 << 3) /* Nexthop should be installed onlink */
 
         std::string ifname = "";  /* Interface name obtained from ifindex */
-        std::vector<struct nh_grp_full> depends;
-        std::vector<struct nh_grp_full> dependents;
+        std::vector<nh_grp_full> nh_grp_full_list;
+        std::vector<uint32_t> depends;
+        std::vector<uint32_t> dependents;
 
         /* begin of hashed data - all fields from here onwards are given to
         * jhash() as one consecutive chunk.  DO NOT create "padding holes".
@@ -173,8 +174,9 @@ namespace swss {
 
         /* Constructor for multi-path NextHopGroupFull */
         NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in,
-                    const std::vector<nh_grp_full>& depends_in,
-                    const std::vector<nh_grp_full>& dependents_in);
+                    const std::vector<nh_grp_full>& nh_grp_full_list_in,
+                    const std::vector<uint32_t>& depends_in,
+                    const std::vector<uint32_t>& dependents_in);
 
         /* Constructor for singleton NextHopGroupFull */
         NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in, enum nexthop_types_t type_in,
