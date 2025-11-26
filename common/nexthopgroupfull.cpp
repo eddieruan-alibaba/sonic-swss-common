@@ -14,9 +14,10 @@ using namespace swss;
 
 /* Constructor for multi-path NextHopGroupFull */
 NextHopGroupFull::NextHopGroupFull(std::uint32_t id_in, std::uint32_t key_in,
-                const std::vector<nh_grp_full>& depends_in,
-                const std::vector<nh_grp_full>& dependents_in)
-    : id(id_in), key(key_in), depends(depends_in), dependents(dependents_in)
+                const std::vector<nh_grp_full>& nh_grp_full_list_in,
+                const std::vector<uint32_t>& depends_in,
+                const std::vector<uint32_t>& dependents_in)
+    : id(id_in), key(key_in), nh_grp_full_list(nh_grp_full_list_in), depends(depends_in), dependents(dependents_in)
 {
     SWSS_LOG_DEBUG("NextHopGroupFull construction started (multi-nexthop)");
     cout << "[CPP DEBUG] NextHopGroupFull construction started (multi-nexthop)" << endl;
@@ -117,6 +118,7 @@ NextHopGroupFull& NextHopGroupFull::operator = (const NextHopGroupFull &other)
 
     ifname = other.ifname;
 
+    nh_grp_full_list = other.nh_grp_full_list;
     depends = other.depends;
     dependents = other.dependents;
 
