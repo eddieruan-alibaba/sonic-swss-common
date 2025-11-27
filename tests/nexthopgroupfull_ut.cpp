@@ -23,42 +23,41 @@ TEST(NextHopGroupFull, multi_nexthop)
     /* Prepare the parameters */
     uint32_t test_id = 100;
     uint32_t test_key = 1234567;
-    vector<nh_grp_full> test_depends = {
+    vector<nh_grp_full> test_nh_grp_full_list = {
         make_nh_grp_full(200, 1, 0),
         make_nh_grp_full(300, 1, 2),
         make_nh_grp_full(310, 2, 0),
         make_nh_grp_full(320, 2, 0),
         make_nh_grp_full(400, 1, 0)
     };
-    vector<nh_grp_full> test_dependents = {
-        make_nh_grp_full(500, 1, 2),
-        make_nh_grp_full(510, 2, 0),
-        make_nh_grp_full(520, 2, 0),
-        make_nh_grp_full(600, 1, 0)
-    };
+    vector<uint32_t> test_depends = {200, 300, 400};
+    vector<uint32_t> test_dependents = {500, 600};
 
     /* Call constructor function */
     cout << "[DEBUG] Calling NextHopGroupFull Constructor ..." << endl;
-    NextHopGroupFull nhg(test_id, test_key, test_depends, test_dependents);
+    NextHopGroupFull nhg(test_id, test_key, test_nh_grp_full_list, test_depends, test_dependents);
 
     /* Check the value of the constructed NextHopGroupFull */
     cout << "[DEBUG] Checking constructed values ..." << endl;
     // Check plain values
     EXPECT_EQ(nhg.id, test_id);
     EXPECT_EQ(nhg.key, test_key);
+    // Check nh_grp_full_list status
+    EXPECT_EQ(nhg.nh_grp_full_list.size(), test_nh_grp_full_list.size());
+    for (size_t i = 0; i < test_nh_grp_full_list.size(); i++) {
+        EXPECT_EQ(nhg.nh_grp_full_list[i].id, test_nh_grp_full_list[i].id);
+        EXPECT_EQ(nhg.nh_grp_full_list[i].weight, test_nh_grp_full_list[i].weight);
+        EXPECT_EQ(nhg.nh_grp_full_list[i].num_direct, test_nh_grp_full_list[i].num_direct);
+    }
     // Check depends status
     EXPECT_EQ(nhg.depends.size(), test_depends.size());
     for (size_t i = 0; i < test_depends.size(); i++) {
-        EXPECT_EQ(nhg.depends[i].id, test_depends[i].id);
-        EXPECT_EQ(nhg.depends[i].weight, test_depends[i].weight);
-        EXPECT_EQ(nhg.depends[i].num_direct, test_depends[i].num_direct);
+        EXPECT_EQ(nhg.depends[i], test_depends[i]);
     }
     // Check dependents status
     EXPECT_EQ(nhg.dependents.size(), test_dependents.size());
     for (size_t i = 0; i < test_dependents.size(); i++) {
-        EXPECT_EQ(nhg.dependents[i].id, test_dependents[i].id);
-        EXPECT_EQ(nhg.dependents[i].weight, test_dependents[i].weight);
-        EXPECT_EQ(nhg.dependents[i].num_direct, test_dependents[i].num_direct);
+        EXPECT_EQ(nhg.dependents[i], test_dependents[i]);
     }
     // Check other unused values
     cout << "[DEBUG] Checking default values ..." << endl;
@@ -90,19 +89,22 @@ TEST(NextHopGroupFull, multi_nexthop)
     // Check plain values
     EXPECT_EQ(assigned_nhg.id, nhg.id);
     EXPECT_EQ(assigned_nhg.key, nhg.key);
+    // Check nh_grp_full_list status
+    EXPECT_EQ(assigned_nhg.nh_grp_full_list.size(), nhg.nh_grp_full_list.size());
+    for (size_t i = 0; i < nhg.nh_grp_full_list.size(); i++) {
+        EXPECT_EQ(assigned_nhg.nh_grp_full_list[i].id, nhg.nh_grp_full_list[i].id);
+        EXPECT_EQ(assigned_nhg.nh_grp_full_list[i].weight, nhg.nh_grp_full_list[i].weight);
+        EXPECT_EQ(assigned_nhg.nh_grp_full_list[i].num_direct, assigned_nhg.nh_grp_full_list[i].num_direct);
+    }
     // Check depends status
     EXPECT_EQ(assigned_nhg.depends.size(), nhg.depends.size());
     for (size_t i = 0; i < nhg.depends.size(); i++) {
-        EXPECT_EQ(assigned_nhg.depends[i].id, nhg.depends[i].id);
-        EXPECT_EQ(assigned_nhg.depends[i].weight, nhg.depends[i].weight);
-        EXPECT_EQ(assigned_nhg.depends[i].num_direct, nhg.depends[i].num_direct);
+        EXPECT_EQ(assigned_nhg.depends[i], nhg.depends[i]);
     }
     // Check dependents status
     EXPECT_EQ(assigned_nhg.dependents.size(), nhg.dependents.size());
     for (size_t i = 0; i < nhg.dependents.size(); i++) {
-        EXPECT_EQ(assigned_nhg.dependents[i].id, nhg.dependents[i].id);
-        EXPECT_EQ(assigned_nhg.dependents[i].weight, nhg.dependents[i].weight);
-        EXPECT_EQ(assigned_nhg.dependents[i].num_direct, nhg.dependents[i].num_direct);
+        EXPECT_EQ(assigned_nhg.dependents[i], nhg.dependents[i]);
     }
     // Check other unused values
     cout << "[DEBUG] Checking assigned default values ..." << endl;
@@ -247,6 +249,7 @@ TEST(NextHopGroupFull, singleton)
         }
     }
     // Check other unused values
+    EXPECT_TRUE(nhg.nh_grp_full_list.empty());
     EXPECT_TRUE(nhg.depends.empty());
     EXPECT_TRUE(nhg.dependents.empty());
 
@@ -311,6 +314,7 @@ TEST(NextHopGroupFull, singleton)
         }
     }
     // Check other unused values
+    EXPECT_TRUE(assigned_nhg.nh_grp_full_list.empty());
     EXPECT_TRUE(assigned_nhg.depends.empty());
     EXPECT_TRUE(assigned_nhg.dependents.empty());
 
